@@ -3,18 +3,21 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <Description>.NET Core C# Push Notifications for Android Google Firebase Messaging (FCM) and Apple push notifications (APN).</Description>
-    <Authors>andrei-m-code</Authors>
+    <Authors>jlucaspains</Authors>
     <Company />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.0.4.0</AssemblyVersion>
-    <FileVersion>3.0.4.0</FileVersion>
-    <Version>3.0.4</Version>
-    <PackageId>CorePush</PackageId>
-    <PackageProjectUrl>https://github.com/andrei-m-code/CorePush</PackageProjectUrl>
+    <AssemblyVersion>4.0.1.0</AssemblyVersion>
+    <FileVersion>4.0.1.0</FileVersion>
+    <Version>4.0.1</Version>
+    <PackageId>lpains.CorePush</PackageId>
+    <PackageProjectUrl>https://github.com/jlucaspains/net-core-push-notifications</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageDescription>.NET Core C# Push Notifications for Android Google Firebase Messaging (FCM) and Apple push notifications (APN).</PackageDescription>
-    <RepositoryUrl>https://github.com/andrei-m-code/CorePush</RepositoryUrl>
+    <RepositoryUrl>https://github.com/jlucaspains/net-core-push-notifications</RepositoryUrl>
     <PackageReleaseNotes>
+V4.0.1
+- Settings are now passed in the send method instead of the constructor. This allows for reusing the same sender for multiple apps.
+
 v3.0.4
 - Bugfixes with FcmSender authorization and serialization
 - CorePush.Tester added to make testing easier

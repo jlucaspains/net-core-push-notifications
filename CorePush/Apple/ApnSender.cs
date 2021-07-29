@@ -27,16 +27,14 @@ namespace CorePush.Apple
         private const string apnidHeader = "apns-id";
         private const int tokenExpiresMinutes = 50;
 
-        private readonly ApnSettings settings;
         private readonly HttpClient http;
 
         /// <summary>
         /// Apple push notification sender constructor
         /// </summary>
         /// <param name="settings">Apple Push Notification settings</param>
-        public ApnSender(ApnSettings settings, HttpClient http)
+        public ApnSender(HttpClient http)
         {
-            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.http = http ?? throw new ArgumentNullException(nameof(http));
         }
 
@@ -49,6 +47,7 @@ namespace CorePush.Apple
         /// </summary>
         /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
         public async Task<ApnsResponse> SendAsync(
+            ApnSettings settings,
             object notification,
             string deviceToken,
             string apnsId = null,
@@ -66,7 +65,7 @@ namespace CorePush.Apple
                 Content = new StringContent(json)
             };
 
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", GetJwtToken());
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", GetJwtToken(settings));
             request.Headers.TryAddWithoutValidation(":method", "POST");
             request.Headers.TryAddWithoutValidation(":path", path);
             request.Headers.Add("apns-topic", settings.AppBundleIdentifier);
@@ -93,19 +92,19 @@ namespace CorePush.Apple
             }
         }
 
-        private string GetJwtToken()
+        private string GetJwtToken(ApnSettings settings)
         {
-            var (token, date) = tokens.GetOrAdd(settings.AppBundleIdentifier, _ => new Tuple<string, DateTime>(CreateJwtToken(), DateTime.UtcNow));
+            var (token, date) = tokens.GetOrAdd(settings.AppBundleIdentifier, _ => new Tuple<string, DateTime>(CreateJwtToken(settings), DateTime.UtcNow));
             if (date < DateTime.UtcNow.AddMinutes(-tokenExpiresMinutes))
             {
                 tokens.TryRemove(settings.AppBundleIdentifier, out _);
-                return GetJwtToken();
+                return GetJwtToken(settings);
             }
 
             return token;
         }
 
-        private string CreateJwtToken()
+        private string CreateJwtToken(ApnSettings settings)
         {
             var header = JsonHelper.Serialize(new { alg = "ES256", kid = CleanP8Key(settings.P8PrivateKeyId) });
             var payload = JsonHelper.Serialize(new { iss = settings.TeamId, iat = ToEpoch(DateTime.UtcNow) });

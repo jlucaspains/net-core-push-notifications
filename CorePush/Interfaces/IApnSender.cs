@@ -7,6 +7,7 @@ namespace CorePush.Interfaces
     public interface IApnSender
     {
         Task<ApnsResponse> SendAsync(
+            ApnSettings settings,
             object notification,
             string deviceToken,
             string apnsId = null,

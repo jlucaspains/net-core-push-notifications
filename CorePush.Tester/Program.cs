@@ -49,12 +49,12 @@ namespace CorePush.Tester
 
             while (true)
             {
-                var apn = new ApnSender(settings, http);
+                var apn = new ApnSender(http);
                 var payload = new AppleNotification(
                     Guid.NewGuid(), 
                     "Hello World (Message)",
                     "Hello World (Title)");
-                var response = await apn.SendAsync(payload, apnDeviceToken);
+                var response = await apn.SendAsync(settings, payload, apnDeviceToken);
             }
         }
 
@@ -66,13 +66,13 @@ namespace CorePush.Tester
                 ServerKey = fcmServerKey
             };
 
-            var fcm = new FcmSender(settings, http);
+            var fcm = new FcmSender(http);
             var payload = new 
             {
                 notification = new { body = "Hello World!" }
             };
 
-            var response = await fcm.SendAsync(fcmReceiverToken, payload);
+            var response = await fcm.SendAsync(settings, fcmReceiverToken, payload);
         }
     }
 }

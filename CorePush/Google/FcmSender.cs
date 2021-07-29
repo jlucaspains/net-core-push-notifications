@@ -14,12 +14,10 @@ namespace CorePush.Google
     public class FcmSender : IFcmSender
     {
         private readonly string fcmUrl = "https://fcm.googleapis.com/fcm/send";
-        private readonly FcmSettings settings;
         private readonly HttpClient http;
 
-        public FcmSender(FcmSettings settings, HttpClient http)
+        public FcmSender(HttpClient http)
         {
-            this.settings = settings;
             this.http = http;
         }
 
@@ -32,13 +30,13 @@ namespace CorePush.Google
         /// <param name="deviceId">Device token (will add `to` to the payload)</param>
         /// <param name="payload">Notification payload that will be serialized using Newtonsoft.Json package</param>
         /// <cref="HttpRequestException">Throws exception when not successful</exception>
-        public Task<FcmResponse> SendAsync(string deviceId, object payload, CancellationToken cancellationToken = default)
+        public Task<FcmResponse> SendAsync(FcmSettings settings, string deviceId, object payload, CancellationToken cancellationToken = default)
         {
             var jsonObject = JObject.FromObject(payload);
             jsonObject.Remove("to");
             jsonObject.Add("to", JToken.FromObject(deviceId));
 
-            return SendAsync(jsonObject, cancellationToken);
+            return SendAsync(settings, jsonObject, cancellationToken);
         }
 
         /// <summary>
@@ -49,7 +47,7 @@ namespace CorePush.Google
         /// </summary>
         /// <param name="payload">Notification payload that will be serialized using Newtonsoft.Json package</param>
         /// <exception cref="HttpRequestException">Throws exception when not successful</exception>
-        public async Task<FcmResponse> SendAsync(object payload, CancellationToken cancellationToken = default)
+        public async Task<FcmResponse> SendAsync(FcmSettings settings, object payload, CancellationToken cancellationToken = default)
         {
             var serialized = JsonHelper.Serialize(payload);
 

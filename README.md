@@ -2,23 +2,12 @@
 
 
 # .NET Core Push Notifications for Android and iOS
-CorePush is a simple .NET Core library for sending Push Notifications for Android Firebase (FCM) and iOS (APN) with JWT HTTP/2 API. It's very lightweight and only has basic functionality. Please contribute or open github issue if you need additional features. Thank you for using it!
+CorePush is a simple .NET Core library for sending Push Notifications for Android Firebase (FCM) and iOS (APN) with JWT HTTP/2 API. It's very lightweight and only has basic functionality. Please contribute or open github issue if you need additional features. 
+
+This is a fork version where settings can be sent in via the Send methods instead of constructor. This allows for sending notifications for multiple apps with a single instance of the senders.
 
 ## Installation
-
-### NuGet Package
-
-The easiest way would be to use [nuget](https://www.nuget.org/packages/CorePush) package.
-
-dotnet cli:
-```
-dotnet add package CorePush
-```
-
-Package Manager Console:
-```
-Install-Package CorePush
-```
+There is no public nuget package for this version of the CorePush. Either use the main project's package or compile from code.
 
 ### Setup for ASP.NET Core with Dependency Injection
 
@@ -30,29 +19,13 @@ Both `ApnSender` and `FcmSender` have dependencies that need to be registered in
 services.AddHttpClient();
 ```
 
-2. Register settings as a singleton:
-
-If you've added ApnSettings and FcmSettings into a configuration section, you can bind section directly to settings object from `IConfiguration` available in Startup.cs:
-
-```
-var section = configuration.GetSection("ApnSettings");
-var settings = new AppSettings();
-section.Bind(settings);
-```
-
-Add settings to services:
-```
-services.AddSingleton(apnSettings);
-services.AddSingleton(fcmSettings);
-```
-
 # Firebase Cloud Messages for Android and iOS
 
 For Firebase messages (aka FCM) we will need project Server Key and Sender ID. To find Server Key and Sender ID go to Firebase Console (https://console.firebase.google.com), select your project, then go to project settings -> cloud messaging. You should be able to find everything you need there. Here is a simple example of how you send Firebase notification:
 
 ```csharp
-var fcm = new FcmSender(settings, httpClient);
-await fcm.SendAsync(deviceToken, notification);
+var fcm = new FcmSender(httpClient);
+await fcm.SendAsync(settings, deviceToken, notification);
 ```
 If you want to use Firebase to send iOS notifications, please checkout this article: https://firebase.google.com/docs/cloud-messaging/ios/certs.
 The library serializes notification object to JSON using Newtonsoft.Json library and sends it to Google cloud. Here is more details on the expected payloads for FCM https://firebase.google.com/docs/cloud-messaging/concept-options#notifications. Please note, we are setting the "to" property to use device token, so you don't have to do it yourself.
@@ -67,8 +40,8 @@ To send notifications to Apple devices you have to create a publisher profile an
 5. Server type - Development or Production APN server
 
 ```csharp
-var apn = new ApnSender(settings, httpClient);
-await apn.SendAsync(notification, deviceToken);
+var apn = new ApnSender(httpClient);
+await apn.SendAsync(settings, notification, deviceToken);
 ```
 **IMPORTANT**: Initialize 1 ApnSender per bundle. When you send many messages at once make sure to retry the sending in case of an error. If error happens it's recommended to retry the call after 1 second delay (await Task.Delay(1000)). Apple typically doesn't like to receive too many messages and will ocasionally respond with HTTP 429. From my experiance it happens once per 1000 requests.
 
